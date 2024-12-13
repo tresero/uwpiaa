@@ -31,22 +31,17 @@ Use the shortcode `[display_attendees]` in any post or page to display the atten
 
 ## File Structure
 
-```
-idloom-attendee-display/
-ттт idloom-attendee-display.php
-ттт includes/
-т   ттт class-api-handler.php
-т   ттт class-admin.php
-т   ттт class-display.php
-ттт templates/
-т   ттт admin-page.php
-т   ттт attendee-list.php
-ттт assets/
-    ттт css/
-    т   ттт style.css
-    ттт js/
-        ттт script.js
-```
+- idloom-attendee-display.php
+- includes/
+  - class-api-handler.php
+  - class-admin.php
+  - class-display.php
+- templates/
+  - admin-page.php
+  - attendee-list.php
+- assets/
+  - css/style.css
+  - js/script.js
 
 ## API Requirements
 
@@ -93,13 +88,11 @@ Controls frontend display and shortcode functionality. Located in `includes/clas
 ## Styling
 
 Custom CSS classes for styling:
-```css
-.attendee-list
-.attendee-search
-.attendee-table
-.sortable
-.pagination
-```
+- .attendee-list
+- .attendee-search
+- .attendee-table
+- .sortable
+- .pagination
 
 ## License
 
