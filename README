@@ -1,0 +1,106 @@
+# Idloom Events Attendee Display
+
+A WordPress plugin for displaying attendee information from the Idloom Events API with sorting, filtering, and pagination capabilities.
+
+## Features
+
+- Displays attendees in a sortable table
+- Real-time search filtering
+- Pagination (20 attendees per page)
+- Sortable columns for attendee details
+- Displays primary cast, other casts, and country information
+- API integration with Idloom Events
+- Admin configuration panel
+
+## Installation
+
+1. Download the plugin files
+2. Upload to your `/wp-content/plugins/` directory
+3. Activate the plugin through WordPress admin panel
+
+## Configuration
+
+1. Navigate to "Idloom Settings" in WordPress admin menu
+2. Enter your API Key
+3. Enter your Event ID
+4. Save settings
+
+## Usage
+
+Use the shortcode `[display_attendees]` in any post or page to display the attendee list.
+
+## File Structure
+
+```
+idloom-attendee-display/
+ттт idloom-attendee-display.php
+ттт includes/
+т   ттт class-api-handler.php
+т   ттт class-admin.php
+т   ттт class-display.php
+ттт templates/
+т   ттт admin-page.php
+т   ттт attendee-list.php
+ттт assets/
+    ттт css/
+    т   ттт style.css
+    ттт js/
+        ттт script.js
+```
+
+## API Requirements
+
+- Requires valid Idloom Events API credentials
+- API must return attendee data with:
+  - firstname
+  - lastname
+  - free_field27 (Primary Cast)
+  - free_field40 (Other Casts)
+  - cpy_country
+
+## Display Fields
+
+- First Name
+- Last Name
+- Primary Cast
+- Other Casts (comma-separated)
+- Country
+
+## Filtering
+
+- Only displays attendees with:
+  - registration_status = 'Complete'
+  - is_sharing_data = true
+
+## Dependencies
+
+- WordPress 5.0+
+- PHP 7.2+
+- jQuery (included with WordPress)
+- Dashicons (included with WordPress)
+
+## Development
+
+### API Handler
+Handles all API communication and data filtering. Located in `includes/class-api-handler.php`.
+
+### Admin Panel
+Manages plugin settings through WordPress admin interface. Located in `includes/class-admin.php`.
+
+### Display Handler
+Controls frontend display and shortcode functionality. Located in `includes/class-display.php`.
+
+## Styling
+
+Custom CSS classes for styling:
+```css
+.attendee-list
+.attendee-search
+.attendee-table
+.sortable
+.pagination
+```
+
+## License
+
+GPL v2 or later
