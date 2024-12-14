@@ -23,11 +23,11 @@ class IdloomAPIHandler {
         $body = json_decode(wp_remote_retrieve_body($response), true);
         return $this->filter_attendees($body['data'] ?? []);
     }
-
+// field56 is opt in
     private function filter_attendees($attendees) {
         return array_filter($attendees, function($attendee) {
             return $attendee['registration_status'] === 'Complete'
-                   &&  $attendee['is_sharing_data'] === true;
+                   &&  $attendee['free_field56'] === true;
         });
     }
 }
