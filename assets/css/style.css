@@ -1,3 +1,22 @@
+/* Set Open Sans for body text and Montserrat for headings */
+body,
+.attendee-list,
+.attendee-search,
+.attendee-table,
+.attendee-table th,
+.attendee-table td,
+.pagination,
+.page-number {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.attendee-table th {
+    font-family: 'Montserrat', sans-serif; /* Use Montserrat for table headings */
+    font-weight: 600; /* Add emphasis to headings */
+}
+
 .attendee-list {
    margin: 20px 0;
 }
@@ -8,6 +27,7 @@
    margin-bottom: 20px;
    border: 1px solid #ddd;
    border-radius: 4px;
+   font-size: 14px;
 }
 
 .attendee-table {
@@ -21,6 +41,7 @@
    padding: 10px;
    border: 1px solid #ddd;
    text-align: left;
+   font-size: 14px;
 }
 
 .attendee-table th.sortable {
@@ -64,6 +85,8 @@
    margin: 0 2px;
    border: 1px solid #ddd;
    text-decoration: none;
+   color: #007cba;
+   font-size: 14px;
 }
 
 .page-number.current {
