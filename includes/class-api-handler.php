@@ -44,7 +44,8 @@ class IdloomAPIHandler {
     private function filter_attendees($attendees) {
         return array_filter($attendees, function($attendee) {
             return $attendee['registration_status'] === 'Complete'
-                   &&  $attendee['free_field56'] === true;
+                   &&  $attendee['free_field56'] === true
+                   && $attendee['payment_status'] === 'Paid';
         });
     }
 }

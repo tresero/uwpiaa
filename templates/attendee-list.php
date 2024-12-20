@@ -16,7 +16,7 @@
                 <tr class="attendee-item">
                     <td><?php echo esc_html($attendee['firstname']); ?></td>
                     <td><?php echo esc_html($attendee['lastname']); ?></td>
-                    <td><?php echo esc_html($attendee['free_field27'] ?? ''); ?></td>
+                    <td><?php echo esc_html($attendee['free_field12'] ?? ''); ?></td>
                     <td><?php echo is_array($attendee['free_field40']) ? implode(', ', $attendee['free_field40']) : ''; ?></td>
                     <td><?php echo esc_html($attendee['cpy_country'] ?? ''); ?></td>
                 </tr>
