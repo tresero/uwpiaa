@@ -1,43 +1,59 @@
 jQuery(document).ready(function($) {
-    $('#attendee-search').on('keyup', function() {
-        var value = $(this).val().toLowerCase();
-        $('.attendee-item').filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    // Search functionality
+    let searchTimeout = null;
+    $('#attendee-search').on('input', function() {
+        clearTimeout(searchTimeout);
+        const $input = $(this);
+        const searchTerm = $input.val();
+        
+        // Only search if empty or 3+ characters
+        if (searchTerm.length === 0 || searchTerm.length >= 3) {
+            searchTimeout = setTimeout(function() {
+                window.location.href = updateUrlParams({
+                    search: searchTerm || null,
+                    aidloom_page: '1'
+                });
+            }, 500);
+        }
+    });
+
+    // Sorting functionality
+    $('.sortable').click(function() {
+        const column = $(this).data('sort');
+        const currentSort = new URLSearchParams(window.location.search).get('sort');
+        const currentOrder = new URLSearchParams(window.location.search).get('order');
+        
+        let direction = 'asc';
+        if (column === currentSort) {
+            direction = currentOrder === 'asc' ? 'desc' : 'asc';
+        }
+
+        window.location.href = updateUrlParams({
+            sort: column,
+            order: direction,
+            aidloom_page: '1'
         });
     });
 
-    $('.sortable').click(function() {
-        var table = $(this).parents('table').eq(0);
-        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+    // Helper function to update URL parameters
+    function updateUrlParams(updates) {
+        const urlParams = new URLSearchParams(window.location.search);
         
-        // Toggle sort direction
-        if (!$(this).hasClass('asc') && !$(this).hasClass('desc')) {
-            $(this).addClass('asc');
-        } else if ($(this).hasClass('asc')) {
-            $(this).removeClass('asc').addClass('desc');
-            rows = rows.reverse();
-        } else {
-            $(this).removeClass('desc').addClass('asc');
-        }
-        
-        // Remove classes from other headers
-        $(this).siblings().removeClass('asc desc');
-        
-        for (var i = 0; i < rows.length; i++) {
-            table.append(rows[i]);
-        }
-    });
+        // Update or remove parameters
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value === null) {
+                urlParams.delete(key);
+            } else {
+                urlParams.set(key, value);
+            }
+        });
 
-    function comparer(index) {
-        return function(a, b) {
-            var valA = getCellValue(a, index);
-            var valB = getCellValue(b, index);
-            return $.isNumeric(valA) && $.isNumeric(valB) ? 
-                valA - valB : valA.toString().localeCompare(valB);
-        }
+        return `${window.location.pathname}?${urlParams.toString()}`;
     }
 
-    function getCellValue(row, index) {
-        return $(row).children('td').eq(index).text();
+    // Set initial search value from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('search')) {
+        $('#attendee-search').val(urlParams.get('search'));
     }
 });

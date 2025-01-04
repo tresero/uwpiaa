@@ -1,26 +1,30 @@
 <?php
 /*
-Plugin Name: Idloom Events Attendee Display
-Description: Displays attendee information from Idloom Events API
+Plugin Name: Idloom Attendees
+Description: Display attendees from Idloom Events
 Version: 1.0
 */
 
-defined('ABSPATH') or die('No direct access allowed');
+if (!defined('ABSPATH')) exit;
 
-require_once plugin_dir_path(__FILE__) . 'includes/class-api-handler.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-admin.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-display.php';
+// Autoload classes
+spl_autoload_register(function ($class_name) {
+    $class_files = array(
+        'IdloomAPIHandler' => 'includes/class-api-handler.php',
+        'IdloomAdmin' => 'includes/class-admin.php',
+        'IdloomDisplay' => 'includes/class-display.php'
+    );
 
-class IdloomAttendeeDisplay {
-    private $api_handler;
-    private $admin;
-    private $display;
-
-    public function __construct() {
-        $this->api_handler = new IdloomAPIHandler();
-        $this->admin = new IdloomAdmin();
-        $this->display = new IdloomDisplay($this->api_handler);
+    if (isset($class_files[$class_name])) {
+        require_once plugin_dir_path(__FILE__) . $class_files[$class_name];
     }
+});
+
+// Initialize plugin
+function init_idloom_plugin() {
+    $api_handler = new IdloomAPIHandler();
+    $admin = new IdloomAdmin($api_handler);
+    $display = new IdloomDisplay($api_handler);
 }
 
-new IdloomAttendeeDisplay();
+add_action('plugins_loaded', 'init_idloom_plugin');
