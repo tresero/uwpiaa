@@ -2,7 +2,7 @@
 /*
 Plugin Name: Idloom Attendees
 Description: Display attendees from Idloom Events
-Version: 1.0
+Version: 1.2
 */
 
 if (!defined('ABSPATH')) exit;
