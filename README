@@ -5,18 +5,21 @@ A WordPress plugin for displaying attendee information from the Idloom Events AP
 ## Features
 
 - Displays attendees in a sortable table
-- Real-time search filtering
+- Real-time search filtering (minimum 3 characters)
 - Pagination (20 attendees per page)
 - Sortable columns for attendee details
 - Displays primary cast, other casts, and country information
 - API integration with Idloom Events
 - Admin configuration panel
+- Caching system (5min primary, 1hr backup)
+- Support for large events (200+ attendees)
 
 ## Installation
 
 1. Download the plugin files
 2. Upload to your `/wp-content/plugins/` directory
-3. Activate the plugin through WordPress admin panel
+3. Activate the plugin through WordPress admin menu
+4. Navigate to "Idloom Settings" and configure
 
 ## Configuration
 
@@ -24,6 +27,7 @@ A WordPress plugin for displaying attendee information from the Idloom Events AP
 2. Enter your API Key
 3. Enter your Event ID
 4. Save settings
+5. (Optional) Monitor cache status in Cache Status submenu
 
 ## Usage
 
@@ -39,6 +43,7 @@ Use the shortcode `[display_attendees]` in any post or page to display the atten
 - templates/
   - admin-page.php
   - attendee-list.php
+  - cache-status.php
 - assets/
   - css/style.css
   - js/script.js
@@ -49,9 +54,10 @@ Use the shortcode `[display_attendees]` in any post or page to display the atten
 - API must return attendee data with:
   - firstname
   - lastname
-  - free_field27 (Primary Cast)
+  - free_field12 (Primary Cast)
   - free_field40 (Other Casts)
   - cpy_country
+  - free_field56 (Who's Registered List visibility)
 
 ## Display Fields
 
@@ -63,9 +69,10 @@ Use the shortcode `[display_attendees]` in any post or page to display the atten
 
 ## Filtering
 
-- Only displays attendees with:
-  - registration_status = 'Complete'
-  - is_sharing_data = true
+Only displays attendees with:
+- registration_status = 'Complete'
+- payment_status = 'Paid'
+- free_field56 = true (Who's Registered List permission)
 
 ## Dependencies
 
@@ -77,13 +84,16 @@ Use the shortcode `[display_attendees]` in any post or page to display the atten
 ## Development
 
 ### API Handler
-Handles all API communication and data filtering. Located in `includes/class-api-handler.php`.
+Handles API communication, caching, and data filtering. Includes pagination support for large datasets.
 
 ### Admin Panel
-Manages plugin settings through WordPress admin interface. Located in `includes/class-admin.php`.
+Manages plugin settings and cache monitoring through WordPress admin interface.
 
 ### Display Handler
-Controls frontend display and shortcode functionality. Located in `includes/class-display.php`.
+Controls frontend display, sorting, searching, and shortcode functionality.
+
+## Debug Mode
+Enable WP_DEBUG in wp-config.php for detailed logging to wp-content/uploads/idloom-debug.log.
 
 ## Styling
 
