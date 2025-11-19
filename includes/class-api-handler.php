@@ -117,14 +117,15 @@ class IdloomAPIHandler {
         $filtered = array_filter($attendees, function($attendee) {
             return isset($attendee['registration_status']) 
                 && isset($attendee['payment_status'])
-                
-                // 1. Check for the Opt-in field ('Who\'s Registered?' List)
                 && isset($attendee['free_field56']) 
                 
-                // 2. Check for completed status (using loose comparison)
+                // 1. Must be fully registered
                 && $attendee['registration_status'] == 'Form Completed' 
                 
-                // 3. Check that the attendee opted in (free_field56 == true)
+                // 2. MUST BE PAID (New condition)
+                && $attendee['payment_status'] === 'Paid'
+                
+                // 3. Must have opted in to the list
                 && $attendee['free_field56'] == true; 
                 
         });
