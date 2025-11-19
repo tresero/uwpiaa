@@ -3,7 +3,7 @@ class IdloomAPIHandler {
     private $api_base_url = 'https://idloom.events/api/v4';
     private $cache_key;
     private $cache_expiration = 300;
-    private $debug = true;  // Debug flag
+    private $debug = true;
 
     public function __construct($debug = false) {
         $this->debug = $debug;
@@ -25,7 +25,8 @@ class IdloomAPIHandler {
             'event_uid' => $event_uid,
             'page' => $page,
             'ignore_fields_mapping' => 1,
-            'fields' => 'registration_status,payment_status,cpy_name', 
+            // Requesting all necessary fields for filtering and display
+            'fields' => 'registration_status,payment_status,free_field56,cpy_name,free_field40', 
             'page_size' => 200
         ]);
 
@@ -54,6 +55,7 @@ class IdloomAPIHandler {
 
     public function fetch_attendees() {
         try {
+            // Check cache first
             if ($cached_data = get_transient($this->cache_key)) {
                 return $cached_data;
             }
@@ -73,6 +75,11 @@ class IdloomAPIHandler {
                 $total_records = $response['meta']['total'];
             } else {
                 $total_records = count($response['data']); // Fallback
+            }
+            
+            // Define HOUR_IN_SECONDS if it's not globally defined (for cache update)
+            if (!defined('HOUR_IN_SECONDS')) {
+                define('HOUR_IN_SECONDS', 3600);
             }
             
             $total_pages = ceil($total_records / 200);
@@ -110,16 +117,16 @@ class IdloomAPIHandler {
         $filtered = array_filter($attendees, function($attendee) {
             return isset($attendee['registration_status']) 
                 && isset($attendee['payment_status'])
-                && isset($attendee['cpy_name'])
                 
-                // 💡 Loosened Condition 1: Use 'Form Completed' (from API observation) and loose '=='
+                // 1. Check for the Opt-in field ('Who\'s Registered?' List)
+                && isset($attendee['free_field56']) 
+                
+                // 2. Check for completed status (using loose comparison)
                 && $attendee['registration_status'] == 'Form Completed' 
                 
-                // 💡 Loosened Condition 2: Use loose '==' for the boolean flag
-                && $attendee['cpy_name'] == true; 
+                // 3. Check that the attendee opted in (free_field56 == true)
+                && $attendee['free_field56'] == true; 
                 
-                // Removed paid status for those with coupons
-                //&& $attendee['payment_status'] === 'Paid';
         });
 
         $this->log_message("Filtered " . count($attendees) . " attendees down to " . count($filtered));
