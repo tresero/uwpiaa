@@ -24,8 +24,8 @@
                         : ''; ?>">
                     </span>
                 </th>
-                <th class="sortable" data-sort="free_field12"> Primary Cast
-    <span class="dashicons <?php echo $sort_info['column'] === 'free_field12' 
+                <th class="sortable" data-sort="cpy_name"> Primary Cast
+    <span class="dashicons <?php echo $sort_info['column'] === 'cpy_name' 
         ? ($sort_info['direction'] === 'asc' 
             ? 'dashicons-arrow-up' 
             : 'dashicons-arrow-down')
@@ -49,7 +49,7 @@
                 <tr class="attendee-item">
                     <td><?php echo esc_html($attendee['firstname']); ?></td>
                     <td><?php echo esc_html($attendee['lastname']); ?></td>
-                    <td><?php echo esc_html($attendee['free_field12'] ?? ''); ?></td>
+                    <td><?php echo esc_html($attendee['cpy_name'] ?? ''); ?></td>
                     <td><?php echo is_array($attendee['free_field40']) ? esc_html(implode(', ', $attendee['free_field40'])) : ''; ?></td>
                     <td><?php echo esc_html($attendee['cpy_country'] ?? ''); ?></td>
                 </tr>

@@ -57,8 +57,7 @@ class IdloomDisplay {
         }
 
         // 3. Apply sorting to the (potentially filtered) dataset
-        // Keeping 'lastname' as the default for stability. Change to 'cpy_name' if needed.
-        $sort_column = isset($_GET['sort']) ? sanitize_text_field($_GET['sort']) : 'lastname'; 
+        $sort_column = isset($_GET['sort']) ? sanitize_text_field($_GET['sort']) : 'lastname'; // Default sort column
         $sort_direction = isset($_GET['order']) ? strtolower($_GET['order']) : 'asc'; // Default sort direction
         $sort_direction = in_array($sort_direction, ['asc', 'desc']) ? $sort_direction : 'asc'; // Validate sort direction
 
@@ -107,7 +106,8 @@ class IdloomDisplay {
                    '<p>No attendees found matching your search.</p>' .
                    '</div>';
         } elseif ($total_items === 0) {
-             // Handle case where there were initially attendees, but filtering removed them all
+             // Handle case where there were initially attendees, but filtering removed them all (shouldn't happen if search block is effective)
+             // Or if there were simply no attendees to begin with (already handled earlier, but belt-and-suspenders)
             return '<p>No attendees found.</p>';
         }
 
@@ -133,7 +133,8 @@ class IdloomDisplay {
         // Ensure the template file exists before requiring it
         $template_path = plugin_dir_path(__FILE__) . '../templates/attendee-list.php';
         if (file_exists($template_path)) {
-            // Make variables available to the template: $paged_attendees, $total_items, $total_pages, $current_page, $sort_info, $search_term
+            // Make variables available to the template
+            // Note: $paged_attendees, $total_items, $total_pages, $current_page, $sort_info, $search_term are implicitly available
             require $template_path;
         } else {
             echo '<p>Error: Attendee list template file not found.</p>';
@@ -152,4 +153,5 @@ class IdloomDisplay {
         // Enqueue custom JavaScript (dependent on jQuery)
         wp_enqueue_script('idloom-attendees-script', plugins_url('../assets/js/script.js', __FILE__), array('jquery'), '1.0', true);
     }
-}
+} // End of class IdloomDisplay
+// Note: Removed an extra closing brace '}' that seemed out of place in the original provided code. Ensure class structure is correct.

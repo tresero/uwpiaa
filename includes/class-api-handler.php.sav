@@ -17,6 +17,8 @@ class IdloomAPIHandler {
         }
     }
 
+
+
     private function fetch_page($page = 1) {
         $event_uid = get_option('idloom_event_id');
         $api_key = get_option('idloom_api_key');
@@ -25,7 +27,7 @@ class IdloomAPIHandler {
             'event_uid' => $event_uid,
             'page' => $page,
             'ignore_fields_mapping' => 1,
-            'fields' => 'registration_status,payment_status,cpy_name', 
+            'fields' => 'registration_status,payment_status,cpy_name',
             'page_size' => 200
         ]);
 
@@ -62,6 +64,15 @@ class IdloomAPIHandler {
             
             // Get first page
             $response = $this->fetch_page(1);
+            
+            // 👇 TEMPORARY OVERRIDE: FORCE RAW RETURN TO CHECK DATA
+        if ($response && isset($response['data'])) {
+            // Output the retrieved count directly to the screen (temporary)
+//            echo "help";
+//            return $response['data']; // Return the unfiltered data directly
+        }
+        // 👆
+            
             if (!$response || !isset($response['data'])) {
                 return $this->get_backup_cache();
             }
@@ -111,13 +122,8 @@ class IdloomAPIHandler {
             return isset($attendee['registration_status']) 
                 && isset($attendee['payment_status'])
                 && isset($attendee['cpy_name'])
-                
-                // 💡 Loosened Condition 1: Use 'Form Completed' (from API observation) and loose '=='
-                && $attendee['registration_status'] == 'Form Completed' 
-                
-                // 💡 Loosened Condition 2: Use loose '==' for the boolean flag
-                && $attendee['cpy_name'] == true; 
-                
+                && $attendee['registration_status'] === 'Complete'
+                && $attendee['cpy_name'] === true;
                 // Removed paid status for those with coupons
                 //&& $attendee['payment_status'] === 'Paid';
         });
