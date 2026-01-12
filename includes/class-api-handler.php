@@ -115,20 +115,28 @@ class IdloomAPIHandler {
         }
 
         $filtered = array_filter($attendees, function($attendee) {
-            return isset($attendee['registration_status']) 
-                && isset($attendee['payment_status'])
-                && isset($attendee['free_field56']) 
-                
-                // 1. Must be fully registered
-                && $attendee['registration_status'] == 'Form Completed' 
-                
-                // 2. MUST BE PAID (New condition)
-                && $attendee['payment_status'] === 'Paid'
-                
-                // 3. Must have opted in to the list
-                && $attendee['free_field56'] == true; 
-                
-        });
+    // Check if required keys exist to avoid undefined index notices
+    if (
+        !isset($attendee['registration_status']) || 
+        !isset($attendee['payment_status']) || 
+        !isset($attendee['free_field56'])
+    ) {
+        return false;
+    }
+
+    // 1. Must be fully registered
+    $isCompleted = ($attendee['registration_status'] === 'Form Completed');
+
+    // 2. MUST BE PAID - OR - have an exception (coupon) in free_field1
+    // !empty() checks if the field exists and isn't an empty string/null
+    $isPaidOrException = ($attendee['payment_status'] === 'Paid' || !empty($attendee['free_field1']));
+
+    // 3. Must have opted in to the list
+    $hasOptedIn = ($attendee['free_field56'] === true || $attendee['free_field56'] === 'true');
+
+    return $isCompleted && $isPaidOrException && $hasOptedIn;
+    });
+
 
         $this->log_message("Filtered " . count($attendees) . " attendees down to " . count($filtered));
         return array_values($filtered);
