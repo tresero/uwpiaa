@@ -1,0 +1,189 @@
+/* Set Open Sans for body text and Montserrat for headings */
+body,
+.attendee-list,
+.attendee-search,
+.attendee-table,
+.attendee-table th,
+.attendee-table td,
+.pagination,
+.page-number {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.attendee-table th {
+    font-family: 'Montserrat', sans-serif; /* Use Montserrat for table headings */
+    font-weight: 600; /* Add emphasis to headings */
+}
+
+.attendee-list {
+   margin: 20px 0;
+}
+
+.attendee-search {
+   width: 100%;
+   padding: 10px;
+   margin-bottom: 20px;
+   border: 1px solid #ddd;
+   border-radius: 4px;
+   font-size: 14px;
+}
+
+.attendee-table {
+   width: 100%;
+   border-collapse: collapse;
+   margin-bottom: 20px;
+}
+
+.attendee-table th,
+.attendee-table td {
+   padding: 10px;
+   border: 1px solid #ddd;
+   text-align: left;
+   font-size: 14px;
+}
+
+.attendee-table th.sortable {
+    position: relative;
+    padding-right: 25px;
+    cursor: pointer;
+}
+
+.attendee-table th.sortable::after {
+    content: "\f142";
+    font-family: 'dashicons';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.attendee-table th.sortable.asc::after {
+    content: "\f142";
+    color: #333;
+}
+
+.attendee-table th.sortable.desc::after {
+    content: "\f140";
+    color: #333;
+}
+
+.attendee-table th.sortable:hover {
+   background-color: #f5f5f5;
+}
+
+/* Pagination */
+.pagination {
+    margin: 2em 0;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.pagination .nav-links {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0.25em;
+    gap: 0.25em;
+}
+
+.pagination .page-numbers {
+    min-width: 2.25em;
+    height: 2.25em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75em;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    color: #2271b1;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-numbers:hover {
+    background-color: #f0f0f1;
+    border-color: #c3c4c7;
+}
+
+.pagination .page-numbers.current {
+    background-color: #2271b1;
+    color: white;
+    border-color: #2271b1;
+    font-weight: 600;
+}
+
+.pagination .first-page,
+.pagination .last-page,
+.pagination .prev-page,
+.pagination .next-page {
+    padding: 0;
+    width: 2.25em;
+    height: 2.25em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    color: #2271b1;
+    transition: all 0.2s ease;
+}
+
+.pagination .first-page:hover,
+.pagination .last-page:hover,
+.pagination .prev-page:hover,
+.pagination .next-page:hover {
+    background-color: #f0f0f1;
+    border-color: #c3c4c7;
+}
+
+.pagination .pagination-dots {
+    min-width: 2.25em;
+    height: 2.25em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #50575e;
+}
+
+.pagination .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-info {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 1em;
+    padding: 0.5em 0.75em;
+    background: #f0f0f1;
+    border-radius: 4px;
+    color: #50575e;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.sortable {
+    cursor: pointer;
+}
+
+.no-results-message {
+    text-align: center;
+    padding: 2em;
+    color: #666;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 1em;
+}

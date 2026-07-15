@@ -1,189 +1,319 @@
-/* Set Open Sans for body text and Montserrat for headings */
-body,
+/*
+ * Attendee List plugin styles
+ * Scoped to .attendee-list to avoid affecting Astra, Bootstrap,
+ * Toolset, or other site pages.
+ */
+
+/* ---------------------------------------------------------
+   Base typography
+--------------------------------------------------------- */
+
 .attendee-list,
-.attendee-search,
-.attendee-table,
-.attendee-table th,
-.attendee-table td,
-.pagination,
-.page-number {
-    font-family: 'Open Sans', sans-serif;
+.attendee-list input,
+.attendee-list table,
+.attendee-list th,
+.attendee-list td,
+.attendee-list a {
+    font-family: "Open Sans", sans-serif;
     font-size: 16px;
     line-height: 1.5;
-}
-
-.attendee-table th {
-    font-family: 'Montserrat', sans-serif; /* Use Montserrat for table headings */
-    font-weight: 600; /* Add emphasis to headings */
+    box-sizing: border-box;
 }
 
 .attendee-list {
-   margin: 20px 0;
+    width: 100%;
+    margin: 20px 0;
 }
 
-.attendee-search {
-   width: 100%;
-   padding: 10px;
-   margin-bottom: 20px;
-   border: 1px solid #ddd;
-   border-radius: 4px;
-   font-size: 14px;
-}
+/* ---------------------------------------------------------
+   Search field
+--------------------------------------------------------- */
 
-.attendee-table {
-   width: 100%;
-   border-collapse: collapse;
-   margin-bottom: 20px;
-}
+.attendee-list .attendee-search {
+    display: block;
+    width: 100%;
+    margin: 0 0 20px;
+    padding: 10px 12px;
 
-.attendee-table th,
-.attendee-table td {
-   padding: 10px;
-   border: 1px solid #ddd;
-   text-align: left;
-   font-size: 14px;
-}
-
-.attendee-table th.sortable {
-    position: relative;
-    padding-right: 25px;
-    cursor: pointer;
-}
-
-.attendee-table th.sortable::after {
-    content: "\f142";
-    font-family: 'dashicons';
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #999;
-}
-
-.attendee-table th.sortable.asc::after {
-    content: "\f142";
-    color: #333;
-}
-
-.attendee-table th.sortable.desc::after {
-    content: "\f140";
-    color: #333;
-}
-
-.attendee-table th.sortable:hover {
-   background-color: #f5f5f5;
-}
-
-/* Pagination */
-.pagination {
-    margin: 2em 0;
-    text-align: center;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-
-.pagination .nav-links {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 0.25em;
-    gap: 0.25em;
+
+    color: #222;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-.pagination .page-numbers {
-    min-width: 2.25em;
-    height: 2.25em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 0.75em;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    text-decoration: none;
-    color: #2271b1;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.pagination .page-numbers:hover {
-    background-color: #f0f0f1;
-    border-color: #c3c4c7;
-}
-
-.pagination .page-numbers.current {
-    background-color: #2271b1;
-    color: white;
+.attendee-list .attendee-search:focus {
     border-color: #2271b1;
+    outline: 2px solid rgba(34, 113, 177, 0.2);
+    outline-offset: 1px;
+}
+
+/* ---------------------------------------------------------
+   Attendee table
+--------------------------------------------------------- */
+
+.attendee-list .attendee-table {
+    width: 100%;
+    margin: 0 0 20px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: #fff;
+}
+
+.attendee-list .attendee-table th,
+.attendee-list .attendee-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+
+    color: #222;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.attendee-list .attendee-table th {
+    background: #f8f8f8;
+    font-family: "Montserrat", sans-serif;
     font-weight: 600;
 }
 
-.pagination .first-page,
-.pagination .last-page,
-.pagination .prev-page,
-.pagination .next-page {
-    padding: 0;
-    width: 2.25em;
-    height: 2.25em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    text-decoration: none;
-    color: #2271b1;
-    transition: all 0.2s ease;
+.attendee-list .attendee-table tbody tr:nth-child(even) {
+    background: #fafafa;
 }
 
-.pagination .first-page:hover,
-.pagination .last-page:hover,
-.pagination .prev-page:hover,
-.pagination .next-page:hover {
-    background-color: #f0f0f1;
-    border-color: #c3c4c7;
+.attendee-list .attendee-table tbody tr:hover {
+    background: #f5f8fa;
 }
 
-.pagination .pagination-dots {
-    min-width: 2.25em;
-    height: 2.25em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #50575e;
-}
+/* ---------------------------------------------------------
+   Sortable table headings
+--------------------------------------------------------- */
 
-.pagination .dashicons {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.pagination-info {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 1em;
-    padding: 0.5em 0.75em;
-    background: #f0f0f1;
-    border-radius: 4px;
-    color: #50575e;
-    font-size: 0.9em;
-    font-weight: 500;
-}
-
-.sortable {
+.attendee-list .attendee-table th.sortable {
     cursor: pointer;
+    white-space: nowrap;
 }
 
-.no-results-message {
+.attendee-list .attendee-table th.sortable:hover {
+    background: #f0f0f0;
+}
+
+.attendee-list .attendee-table th.sortable .dashicons {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
+
+    color: #50575e;
+    font-size: 18px;
+    line-height: 18px;
+    vertical-align: middle;
+}
+
+/* ---------------------------------------------------------
+   Pagination wrapper
+--------------------------------------------------------- */
+
+.attendee-list .aidloom-pagination {
+    display: block;
+    width: 100%;
+    margin: 2rem 0 0;
+    padding: 0;
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue",
+        sans-serif;
+
     text-align: center;
-    padding: 2em;
-    color: #666;
-    background: #f9f9f9;
+}
+
+/* Pagination button row */
+
+.attendee-list .aidloom-pagination-links {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 0.25rem;
+}
+
+/* Page numbers and navigation controls */
+
+.attendee-list .aidloom-page-number,
+.attendee-list .aidloom-page-control {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 2.5rem;
+    height: 2.5rem;
+    margin: 0;
+    padding: 0 0.75rem;
+
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    background: #fff;
+
+    color: #2271b1;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.attendee-list .aidloom-page-control {
+    width: 2.5rem;
+    padding: 0;
+}
+
+/* Hover and focus */
+
+.attendee-list .aidloom-page-number:hover,
+.attendee-list .aidloom-page-number:focus,
+.attendee-list .aidloom-page-control:hover,
+.attendee-list .aidloom-page-control:focus {
+    border-color: #2271b1;
+    background: #f0f6fc;
+
+    color: #135e96;
+    text-decoration: none;
+}
+
+.attendee-list .aidloom-page-number:focus-visible,
+.attendee-list .aidloom-page-control:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+/* Current page */
+
+.attendee-list .aidloom-page-number.is-current {
+    border-color: #2271b1;
+    background: #2271b1;
+
+    color: #fff;
+    font-weight: 600;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Pagination ellipsis */
+
+.attendee-list .aidloom-pagination-dots {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 2rem;
+    height: 2.5rem;
+    margin: 0;
+    padding: 0 0.25rem;
+
+    color: #50575e;
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* Dashicons in navigation controls */
+
+.attendee-list .aidloom-page-control .dashicons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+    margin: 0;
+
+    font-size: 18px;
+    line-height: 18px;
+}
+
+/* Page count beneath the buttons */
+
+.attendee-list .aidloom-pagination-info {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+
+    margin: 0.75rem auto 0;
+    padding: 0.4rem 0.75rem;
+
+    border-radius: 4px;
+    background: #f0f0f1;
+
+    color: #50575e;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* ---------------------------------------------------------
+   No-results message
+--------------------------------------------------------- */
+
+.attendee-list .no-results-message {
+    margin-top: 1rem;
+    padding: 2rem;
+
     border: 1px solid #ddd;
     border-radius: 4px;
-    margin-top: 1em;
+    background: #f9f9f9;
+
+    color: #666;
+    text-align: center;
+}
+
+/* ---------------------------------------------------------
+   Mobile
+--------------------------------------------------------- */
+
+@media (max-width: 600px) {
+    .attendee-list {
+        overflow-x: auto;
+    }
+
+    .attendee-list .attendee-table {
+        min-width: 700px;
+    }
+
+    .attendee-list .aidloom-pagination-links {
+        gap: 0.2rem;
+    }
+
+    .attendee-list .aidloom-page-number,
+    .attendee-list .aidloom-page-control {
+        min-width: 2.25rem;
+        height: 2.25rem;
+        padding: 0 0.6rem;
+        font-size: 14px;
+    }
+
+    .attendee-list .aidloom-page-control {
+        width: 2.25rem;
+        padding: 0;
+    }
+
+    .attendee-list .aidloom-pagination-dots {
+        min-width: 1.5rem;
+        height: 2.25rem;
+        padding: 0;
+    }
 }

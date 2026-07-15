@@ -25,13 +25,11 @@ class IdloomAPIHandler {
             'event_uid' => $event_uid,
             'page' => $page,
             'ignore_fields_mapping' => 1,
-            // Requesting all necessary fields for filtering and display
-            'fields' => 'registration_status,payment_status,free_field56,cpy_name,free_field40', 
             'page_size' => 200
         ]);
 
         $this->log_message("Making API request for page {$page}");
-        
+
         $response = wp_remote_get($url, array(
             'headers' => array('Authorization' => 'Bearer ' . $api_key),
             'timeout' => 30
@@ -61,7 +59,7 @@ class IdloomAPIHandler {
             }
 
             $all_attendees = [];
-            
+
             // Get first page
             $response = $this->fetch_page(1);
             if (!$response || !isset($response['data'])) {
@@ -69,19 +67,19 @@ class IdloomAPIHandler {
             }
 
             $all_attendees = $response['data'];
-            
+
             // Get total pages from response meta data
             if (isset($response['meta']) && isset($response['meta']['total'])) {
                 $total_records = $response['meta']['total'];
             } else {
                 $total_records = count($response['data']); // Fallback
             }
-            
+
             // Define HOUR_IN_SECONDS if it's not globally defined (for cache update)
             if (!defined('HOUR_IN_SECONDS')) {
                 define('HOUR_IN_SECONDS', 3600);
             }
-            
+
             $total_pages = ceil($total_records / 200);
             $this->log_message("Found total of {$total_records} records across {$total_pages} pages");
 
@@ -94,7 +92,7 @@ class IdloomAPIHandler {
             }
 
             $this->log_message("Retrieved total of " . count($all_attendees) . " records");
-            
+
             $filtered_attendees = $this->filter_attendees($all_attendees);
             if (!empty($filtered_attendees)) {
                 $this->update_caches($filtered_attendees);
@@ -115,28 +113,33 @@ class IdloomAPIHandler {
         }
 
         $filtered = array_filter($attendees, function($attendee) {
-    // Check if required keys exist to avoid undefined index notices
-    if (
-        !isset($attendee['registration_status']) || 
-        !isset($attendee['payment_status']) || 
-        !isset($attendee['free_field56'])
-    ) {
-        return false;
-    }
+            // Check if required keys exist to avoid undefined index notices
+            if (
+                !isset($attendee['registration_status']) ||
+                !isset($attendee['payment_status']) ||
+                !isset($attendee['free_field56'])
+            ) {
+                return false;
+            }
 
-    // 1. Must be fully registered
-    $isCompleted = ($attendee['registration_status'] === 'Form Completed');
+            // 1. Must be fully registered
+            $isCompleted = ($attendee['registration_status'] === 'Form Completed');
 
-    // 2. MUST BE PAID - OR - have an exception (coupon) in free_field1
-    // !empty() checks if the field exists and isn't an empty string/null
-    $isPaidOrException = ($attendee['payment_status'] === 'Paid' || !empty($attendee['free_field1']));
+            // 2. MUST BE PAID - OR - have an exception (coupon) in free_field1
+            $isPaidOrException = (
+                $attendee['payment_status'] === 'Paid'
+                || (isset($attendee['free_field1']) && !empty($attendee['free_field1']))
+            );
 
-    // 3. Must have opted in to the list
-    $hasOptedIn = ($attendee['free_field56'] === true || $attendee['free_field56'] === 'true');
+            // 3. Must have opted in to the list — accept multiple truthy representations
+            // because Idloom may return this as bool true, "true", 1, "1", or "yes".
+            $optIn = $attendee['free_field56'];
+            $hasOptedIn = ($optIn === true
+                || $optIn === 1
+                || (is_string($optIn) && in_array(strtolower($optIn), ['true', '1', 'yes'], true)));
 
-    return $isCompleted && $isPaidOrException && $hasOptedIn;
-    });
-
+            return $isCompleted && $isPaidOrException && $hasOptedIn;
+        });
 
         $this->log_message("Filtered " . count($attendees) . " attendees down to " . count($filtered));
         return array_values($filtered);

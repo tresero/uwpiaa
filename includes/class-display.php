@@ -4,7 +4,7 @@
  */
 class IdloomDisplay {
     private $api_handler;
-    private $attendees_per_page = 20; // Number of attendees to show per page
+    private $attendees_per_page = 20;
 
     /**
      * Constructor.
@@ -13,143 +13,195 @@ class IdloomDisplay {
      */
     public function __construct($api_handler) {
         $this->api_handler = $api_handler;
-        // Register the shortcode [display_attendees]
+
         add_shortcode('display_attendees', array($this, 'display_attendees_shortcode'));
-        // Enqueue necessary scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
     }
 
     /**
      * Handles the [display_attendees] shortcode output.
-     * Fetches, searches, sorts, paginates, and displays attendees.
      *
      * @return string HTML output for the attendee list.
      */
     public function display_attendees_shortcode() {
-        // 1. Get all attendees first
         $attendees = $this->api_handler->fetch_attendees();
-        if (!$attendees) {
-            // Handle case where API returns no attendees at all
+
+        if (!$attendees || !is_array($attendees)) {
             return '<p>No attendees found.</p>';
         }
 
-        // 2. Apply search if present
-        $search = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
-        if (!empty($search)) {
-            $attendees = array_filter($attendees, function($attendee) use ($search) {
-                $searchable = '';
-                // Concatenate all attendee values into a single string for searching
-                foreach ($attendee as $value) {
-                    if (is_array($value)) {
-                        // If a value is an array, implode its elements
-                        $searchable .= implode(' ', $value) . ' ';
-                    } elseif (is_scalar($value)) {
-                        // Only concatenate scalar values (strings, numbers, bools)
-                        $searchable .= $value . ' ';
-                    }
-                    // Objects or other non-scalar, non-array types are ignored for search
+        /*
+         * Search ONLY the visible table columns:
+         * First Name, Last Name, Primary Cast, Other Casts, Country.
+         */
+        $search = isset($_GET['search']) ? sanitize_text_field(wp_unslash($_GET['search'])) : '';
+
+        if ($search !== '') {
+            $search_fields = array(
+                'firstname',
+                'lastname',
+                'cpy_name',
+                'free_field40',
+                'cpy_country',
+            );
+
+            $attendees = array_filter($attendees, function($attendee) use ($search, $search_fields) {
+                if (!is_array($attendee)) {
+                    return false;
                 }
-                // Perform case-insensitive search
-                return stripos(trim($searchable), $search) !== false;
+
+                $searchable = '';
+
+                foreach ($search_fields as $field) {
+                    if (!array_key_exists($field, $attendee)) {
+                        continue;
+                    }
+
+                    $value = $attendee[$field];
+
+                    if (is_array($value)) {
+                        $flat_values = array();
+
+                        array_walk_recursive($value, function($item) use (&$flat_values) {
+                            if (is_scalar($item)) {
+                                $flat_values[] = (string) $item;
+                            }
+                        });
+
+                        $searchable .= ' ' . implode(' ', $flat_values);
+                    } elseif (is_scalar($value)) {
+                        $searchable .= ' ' . (string) $value;
+                    }
+                }
+
+                return stripos($searchable, $search) !== false;
             });
-            // Reset array keys after filtering
+
             $attendees = array_values($attendees);
         }
 
-        // 3. Apply sorting to the (potentially filtered) dataset
-        // Keeping 'lastname' as the default for stability. Change to 'cpy_name' if needed.
-        $sort_column = isset($_GET['sort']) ? sanitize_text_field($_GET['sort']) : 'lastname'; 
-        $sort_direction = isset($_GET['order']) ? strtolower($_GET['order']) : 'asc'; // Default sort direction
-        $sort_direction = in_array($sort_direction, ['asc', 'desc']) ? $sort_direction : 'asc'; // Validate sort direction
+        /*
+         * Sort ONLY allowed visible columns.
+         */
+        $allowed_sort_columns = array(
+            'firstname',
+            'lastname',
+            'cpy_name',
+            'cpy_country',
+        );
+
+        $sort_column = isset($_GET['sort']) ? sanitize_text_field(wp_unslash($_GET['sort'])) : 'lastname';
+
+        if (!in_array($sort_column, $allowed_sort_columns, true)) {
+            $sort_column = 'lastname';
+        }
+
+        $sort_direction = isset($_GET['order']) ? strtolower(sanitize_text_field(wp_unslash($_GET['order']))) : 'asc';
+
+        if (!in_array($sort_direction, array('asc', 'desc'), true)) {
+            $sort_direction = 'asc';
+        }
 
         usort($attendees, function($a, $b) use ($sort_column, $sort_direction) {
-            // Get values for comparison, default to null if not set
-            $a_val = isset($a[$sort_column]) ? $a[$sort_column] : null;
-            $b_val = isset($b[$sort_column]) ? $b[$sort_column] : null;
+            $a_val = $a[$sort_column] ?? '';
+            $b_val = $b[$sort_column] ?? '';
 
-            // Handle array values - convert them to comparable strings
             if (is_array($a_val)) {
-                $a_val = implode(', ', $a_val);
+                $a_val = implode(', ', array_filter($a_val, 'is_scalar'));
             }
+
             if (is_array($b_val)) {
-                $b_val = implode(', ', $b_val);
+                $b_val = implode(', ', array_filter($b_val, 'is_scalar'));
             }
 
-            // Ensure values are strings for comparison, handling nulls appropriately
-            // Convert to lowercase for case-insensitive comparison
-            // This step now safely casts to string, as arrays were handled above.
-            $a_val_str = strtolower((string)($a_val ?? ''));
-            $b_val_str = strtolower((string)($b_val ?? ''));
+            $a_val = strtolower(trim((string) $a_val));
+            $b_val = strtolower(trim((string) $b_val));
 
-            // Compare the string values
-            if ($a_val_str === $b_val_str) {
-                // If primary sort values are equal, use lastname as secondary sort
-                // Ensure lastname exists and compare case-insensitively
-                $a_lastname = strtolower($a['lastname'] ?? '');
-                $b_lastname = strtolower($b['lastname'] ?? '');
-                // Use strcmp for binary safe comparison after strtolower
-                return $sort_direction === 'asc' ?
-                    strcmp($a_lastname, $b_lastname) :
-                    strcmp($b_lastname, $a_lastname);
+            if ($a_val === $b_val) {
+                $a_lastname = strtolower(trim((string) ($a['lastname'] ?? '')));
+                $b_lastname = strtolower(trim((string) ($b['lastname'] ?? '')));
+
+                $last_cmp = strcmp($a_lastname, $b_lastname);
+
+                if ($last_cmp !== 0) {
+                    return $sort_direction === 'asc' ? $last_cmp : -$last_cmp;
+                }
+
+                $a_firstname = strtolower(trim((string) ($a['firstname'] ?? '')));
+                $b_firstname = strtolower(trim((string) ($b['firstname'] ?? '')));
+
+                $first_cmp = strcmp($a_firstname, $b_firstname);
+
+                return $sort_direction === 'asc' ? $first_cmp : -$first_cmp;
             }
 
-            // Primary sort comparison using strcmp after strtolower
-            $result = strcmp($a_val_str, $b_val_str);
-            return $sort_direction === 'asc' ? $result : -$result;
+            $cmp = strcmp($a_val, $b_val);
+
+            return $sort_direction === 'asc' ? $cmp : -$cmp;
         });
 
-        // 4. Apply pagination *after* searching and sorting the entire dataset
+        /*
+         * Pagination after searching and sorting.
+         */
         $total_items = count($attendees);
-        if ($total_items === 0 && !empty($search)) {
-            // Handle case where search yields no results
+
+        if ($total_items === 0 && $search !== '') {
             return '<div class="attendee-list">' .
-                   '<input type="text" id="attendee-search" class="attendee-search" placeholder="Search attendees..." value="' . esc_attr($search) . '">' .
-                   '<p>No attendees found matching your search.</p>' .
-                   '</div>';
-        } elseif ($total_items === 0) {
-             // Handle case where there were initially attendees, but filtering removed them all
+                '<input type="text" id="attendee-search" class="attendee-search" placeholder="Search attendees (minimum 3 characters)..." value="' . esc_attr($search) . '">' .
+                '<p>No attendees found matching your search.</p>' .
+                '</div>';
+        }
+
+        if ($total_items === 0) {
             return '<p>No attendees found.</p>';
         }
 
-
-        // Calculate pagination variables
-        $current_page = isset($_GET['aidloom_page']) ? max(1, (int)$_GET['aidloom_page']) : 1;
-        $total_pages = ceil($total_items / $this->attendees_per_page);
-        $current_page = min($current_page, $total_pages); // Ensure current page doesn't exceed total pages
+        $current_page = isset($_GET['aidloom_page']) ? max(1, (int) $_GET['aidloom_page']) : 1;
+        $total_pages = (int) ceil($total_items / $this->attendees_per_page);
+        $current_page = min($current_page, $total_pages);
         $offset = ($current_page - 1) * $this->attendees_per_page;
 
-        // Get the slice of attendees for the current page
         $paged_attendees = array_slice($attendees, $offset, $this->attendees_per_page);
 
-        // 5. Pass data to the template for display
-        $sort_info = [
+        $sort_info = array(
             'column' => $sort_column,
-            'direction' => $sort_direction
-        ];
-        $search_term = $search; // Pass the search term to the template
+            'direction' => $sort_direction,
+        );
 
-        // Use output buffering to capture the template include
+        $search_term = $search;
+
         ob_start();
-        // Ensure the template file exists before requiring it
+
         $template_path = plugin_dir_path(__FILE__) . '../templates/attendee-list.php';
+
         if (file_exists($template_path)) {
-            // Make variables available to the template: $paged_attendees, $total_items, $total_pages, $current_page, $sort_info, $search_term
             require $template_path;
         } else {
             echo '<p>Error: Attendee list template file not found.</p>';
         }
-        return ob_get_clean(); // Return the captured output
+
+        return ob_get_clean();
     }
 
     /**
      * Enqueues the necessary CSS and JavaScript files for the attendee list display.
      */
     public function enqueue_scripts() {
-        // Enqueue WordPress dashicons for potential use in template (e.g., sort arrows)
         wp_enqueue_style('dashicons');
-        // Enqueue custom stylesheet
-        wp_enqueue_style('idloom-attendees-style', plugins_url('../assets/css/style.css', __FILE__));
-        // Enqueue custom JavaScript (dependent on jQuery)
-        wp_enqueue_script('idloom-attendees-script', plugins_url('../assets/js/script.js', __FILE__), array('jquery'), '1.0', true);
+
+        wp_enqueue_style(
+            'idloom-attendees-style',
+            plugins_url('../assets/css/style.css', __FILE__),
+            array(),
+            '1.0'
+        );
+
+        wp_enqueue_script(
+            'idloom-attendees-script',
+            plugins_url('../assets/js/script.js', __FILE__),
+            array('jquery'),
+            '1.0',
+            true
+        );
     }
 }
